@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  # namespace: default
+  labels:
+    app: kafka-producer
+spec:
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+    spec:
+      containers:
+        - name: kafka-producer
+          imagePullPolicy: Always
+          image: ksgregistry.azurecr.io/kafka-producer/kafka-producer-94a5e50a2707563ba56f4bf71f750cc5:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVER
+              value: 20.4.99.189:9093           
+            - name: KAFKA_TOPIC
+              value: test-topic
+            - name: SPIFFE_ID
+              value: spiffe://nostak.org/ns/kafka/sa/default
+          volumeMounts:
+            - name: spire-agent-socket
+              mountPath: /run/spire/sockets
+              readOnly: true
+      volumes:
+        - name: spire-agent-socket
+          hostPath:
+            path: /run/spire/sockets
+            type: Directory

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-consumer
+  namespace: kafka
+  labels:
+    app: kafka-consumer
+spec:
+  selector:
+    matchLabels:
+      app: kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-consumer
+    spec:
+      containers:
+        - name: kafka-consumer
+          imagePullPolicy: Always
+          image: ksgregistry.azurecr.io/kafka-consumer/kafka-consumer-5a9278f0495a9b7590b7633478460759:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVER
+              value: 20.4.99.189:9093
+            - name: KAFKA_TOPIC
+              value: test-topic
+            - name: SPIFFE_ID
+              value: spiffe://nostak.org/ns/kafka/sa/default
+          volumeMounts:
+            - name: spire-agent-socket
+              mountPath: /run/spire/sockets
+              readOnly: true
+      volumes:
+        - name: spire-agent-socket
+          hostPath:
+            path: /run/spire/sockets
+            type: Directory
